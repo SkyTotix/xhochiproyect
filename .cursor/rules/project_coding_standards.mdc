@@ -1,0 +1,134 @@
+---
+description: "Principios de arquitectura y buenas prácticas generales para el proyecto de tokenización de carbono."
+globs: ["**/*.*"]
+alwaysApply: true
+---
+
+# Estándares Generales del Proyecto CARBONXO
+
+## 1. CONTEXTO PRIMERO
+
+Antes de generar código, identifica y sigue los patrones y la estructura existentes en el proyecto. Revisa archivos similares antes de crear nuevos componentes o contratos.
+
+## 2. NOMENCLATURA DEL PROYECTO
+
+El activo fungible principal es **CARBONXO** y el activo no fungible es el **Certificado de Verificación**. El código debe reflejar el flujo de tokenización de CO2 de la caña de azúcar en Xochitepec.
+
+### Nombres correctos a usar:
+
+- **Token fungible:** `CARBONXO`, `carbonxo`, `CarbonXo`
+- **Certificado NFT:** `VerificationCertificate`, `Certificate`, `Certificado`
+- **Agricultor:** `Farmer`, `Agricultor`
+- **Verificador:** `Verifier`, `ULPCA`, `Ingenio`
+
+### Ejemplos:
+
+```rust
+// Rust
+pub fn mint_certificate(...);  // ✅ Correcto
+pub fn create_carbonxo(...);   // ✅ Correcto
+```
+
+```typescript
+// TypeScript
+const getCarbonXoBalance = async () => { ... };  // ✅ Correcto
+const CertificateVerification = () => { ... };   // ✅ Correcto
+```
+
+## 3. CONSISTENCIA
+
+El código DEBE ser:
+- **Modular:** Funciones y componentes pequeños y enfocados
+- **Comprobable:** Fácil de testear
+- **Limpio:** Fácil de leer y mantener
+
+## 4. COMENTARIOS
+
+Comenta los métodos y usa docstrings para explicar la lógica, especialmente en las funciones de Rust.
+
+### Rust (docstrings):
+
+```rust
+/// Acuña un certificado de verificación de carbono para un agricultor.
+/// 
+/// # Argumentos
+/// * `env` - El entorno del contrato
+/// * `farmer_address` - Dirección del agricultor
+/// * `surface_area` - Superficie en hectáreas
+/// * `co2_reduced` - Toneladas de CO2 reducidas
+/// 
+/// # Retorna
+/// El ID del certificado creado (BytesN<32>)
+/// 
+/// # Errores
+/// * `Error::InvalidAmount` si la superficie o CO2 son <= 0
+/// * `Error::NotAuthorized` si el caller no es el verificador
+pub fn mint_certificate(
+    env: Env,
+    farmer_address: Address,
+    surface_area: i128,
+    co2_reduced: i128
+) -> Result<BytesN<32>, Error> {
+    // Implementación
+}
+```
+
+### TypeScript:
+
+```typescript
+/**
+ * Obtiene el balance de tokens CARBONXO para una dirección específica.
+ * 
+ * @param address - La dirección del Stellar account
+ * @returns El balance en CARBONXO tokens
+ */
+const getCarbonXoBalance = async (address: string): Promise<number> => {
+  // Implementación
+};
+```
+
+## 5. DO NOTS (NO HACER)
+
+- ❌ No añadas lógica que no sea estrictamente necesaria para cumplir con los requisitos de tokenización de carbono
+- ❌ No cambies archivos no relacionados a la solicitud
+- ❌ No uses dependencias no auditadas o experimental
+- ❌ No hardcodees valores que deben ser configurables
+- ❌ No ignores errores - maneja todos los casos de error apropiadamente
+
+## 6. ENTRADAS CLAVE
+
+La entrada de datos off-chain más importante es la **Superficie No Quemada (`SQ`)**, según la metodología CONADESUCA, que debe ser gestionada por el oráculo/verificador.
+
+```rust
+/// Estructura de datos del certificado
+pub struct VerificationRecord {
+    /// Superficie No Quemada en hectáreas (SQ según CONADESUCA)
+    pub surface_area: i128,
+    
+    /// Toneladas de CO2 reducidas calculadas
+    pub co2_reduced: i128,
+    
+    /// Dirección del verificador (ULPCA/Ingenio)
+    pub verifier_address: Address,
+    
+    /// Fecha de verificación
+    pub verified_at: u64,
+}
+```
+
+## 7. Flujo de Tokenización
+
+```
+1. Agricultor cultiva caña sin quemar (off-chain)
+2. Verificador (ULPCA/Ingenio) mide SQ (off-chain)
+3. Verificador calcula CO2 reducido (off-chain)
+4. Verificador llama a mint_certificate() con SQ y datos
+5. Se acuña NFT Certificado de Verificación
+6. Se acuñan tokens CARBONXO basados en el certificado
+```
+
+## Referencias
+
+- [CONADESUCA Methodology](https://www.conadesuca.gob.mx/)
+- [Scaffold Stellar](https://github.com/AhaLabs/scaffold-stellar)
+- [Clean Code Principles](https://github.com/ryanmcdermott/clean-code-javascript)

@@ -1,0 +1,64 @@
+---
+alwaysApply: true
+---
+# Estándares Críticos de Soroban (WASM y Almacenamiento)
+
+## 1. Optimización Wasm
+
+Al modificar o generar el archivo `Cargo.toml`, ASEGÚRATE de que el perfil `[profile.release]` esté configurado con las optimizaciones máximas para cumplir con el límite de 64KB de Soroban.
+
+### Configuraciones obligatorias:
+
+```toml
+[profile.release]
+opt-level = "z"      # Optimización de tamaño máxima
+panic = "abort"      # Evitar información de panics
+strip = "symbols"    # Eliminar símbolos de debug
+```
+
+**CRÍTICO:** Sin estas configuraciones, el contrato puede exceder 64KB y fallar el deployment.
+
+## 2. Seguridad de Almacenamiento (State Bloat)
+
+**NO utilices el Almacenamiento de Instancia** (*Instance Storage*) para almacenar colecciones de datos que crezcan sin límite (como listas de agricultores, balances de tokens o registros de certificados). Esto podría llevar a un aumento prohibitivo de los costos de transacción y una vulnerabilidad de Denegación de Servicio (DoS).
+
+### ❌ Incorrecto:
+
+```rust
+pub struct Contract {
+    // ❌ Lista que crece indefinidamente
+    pub farmers: Vec<Address>,
+    pub certificates: Vec<VerificationRecord>,
+}
+```
+
+### ✅ Correcto:
+
+```rust
+// Usar Persistent Storage con claves únicas
+let key = DataKey::Certificate(certificate_id);
+env.storage().persistent().set(&key, &record);
+```
+
+## 3. NFT Data - Almacenamiento Persistente
+
+Almacena los datos de verificación del certificado de carbono (el `VerificationRecord`) en **Almacenamiento Persistente** (*Persistent Storage*) para garantizar su longevidad, mapeándolos por un `certificate_id` único.
+
+### Implementación recomendada:
+
+```rust
+pub enum DataKey {
+    Certificate(BytesN<32>),  // certificate_id único
+}
+
+pub fn store_certificate(env: Env, certificate_id: BytesN<32>, record: VerificationRecord) {
+    let key = DataKey::Certificate(certificate_id);
+    env.storage().persistent().set(&key, &record);
+}
+```
+
+## Referencias
+
+- [Soroban Size Limit](https://developers.stellar.org/docs/build/smart-contracts)
+- [State Bloat Prevention](https://developers.stellar.org/docs/build/smart-contracts/tutorials/state-management)
+- [Storage Types](https://developers.stellar.org/docs/build/smart-contracts/tutorials/state-management)

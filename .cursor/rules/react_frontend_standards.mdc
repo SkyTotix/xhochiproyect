@@ -1,0 +1,150 @@
+---
+description: "Estándares de codificación para el Frontend React/TypeScript generado por Scaffold Stellar."
+alwaysApply: false
+---
+# Estándares de Codificación del Frontend
+
+## 1. Tipificación Estricta
+
+Utiliza TypeScript para todo el código, favoreciendo `interface` para la definición de `props` y asegurando que la configuración de tipado estricto sea habilitada en `tsconfig.json`. **Evita el uso del tipo `any`**.
+
+### ✅ Correcto:
+
+```typescript
+interface VerificationFormProps {
+  onVerify: (data: VerificationData) => void;
+  isLoading: boolean;
+}
+
+export const VerificationForm: React.FC<VerificationFormProps> = ({ 
+  onVerify, 
+  isLoading 
+}) => {
+  // Implementación
+};
+```
+
+### ❌ Incorrecto:
+
+```typescript
+export const VerificationForm = (props: any) => {  // ❌ Evitar any
+  // Implementación
+};
+```
+
+## 2. Componentes Funcionales
+
+Utiliza exclusivamente componentes funcionales y *hooks*, evitando las clases. Utiliza flechas (`=>`) para declarar los componentes funcionales.
+
+### ✅ Correcto:
+
+```typescript
+const TokenList: React.FC<TokenListProps> = ({ tokens }) => {
+  const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  );
+};
+
+export default TokenList;
+```
+
+## 3. Nombres y Estilo
+
+- **PascalCase** para nombres de componentes e interfaces (ej. `VerificationForm`, `TokenProps`)
+- **camelCase** para variables y funciones
+- **UPPER_SNAKE_CASE** para constantes
+
+```typescript
+interface CertificateData {  // PascalCase
+  certificateId: string;     // camelCase
+  farmerName: string;
+}
+
+const MAX_RETRY_COUNT = 3;   // UPPER_SNAKE_CASE
+
+const getUserData = async () => {  // camelCase
+  // Implementación
+};
+```
+
+## 4. Modularidad
+
+Los componentes deben ser modulares y reutilizables. Si se genera un nuevo componente o pantalla, se debe separar la lógica del estilo.
+
+```typescript
+// components/CertificateCard.tsx - Lógica
+import styles from './CertificateCard.module.css';
+
+export const CertificateCard: React.FC<CertificateCardProps> = ({ data }) => {
+  return (
+    <div className={styles.card}>
+      <h3 className={styles.title}>{data.title}</h3>
+    </div>
+  );
+};
+
+// components/CertificateCard.module.css - Estilos
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+}
+```
+
+## 5. Interacción con Contratos
+
+Al interactuar con Soroban, importa y utiliza los **clientes de TypeScript autogenerados** ubicados en el directorio `packages/`. Esta es la forma más segura y tipada de invocar las funciones del contrato.
+
+```typescript
+// ✅ Correcto: Usar clientes autogenerados
+import { CarbonXoClient } from '../../packages/carbon-xo';
+
+const carbonClient = new CarbonXoClient({ 
+  network: 'testnet',
+  contractId: CONTRACT_ID 
+});
+
+const handleMint = async () => {
+  const result = await carbonClient.mintCertificate({
+    certificateId: '0x123...',
+    data: certificateData
+  });
+};
+```
+
+## 6. Conexión de Billetera
+
+Utiliza la biblioteca `@stellar/freighter-api` para gestionar la conexión y la firma de transacciones en la dApp.
+
+```typescript
+import freighterApi from '@stellar/freighter-api';
+
+const connectWallet = async () => {
+  try {
+    const isConnected = await freighterApi.isConnected();
+    if (!isConnected) {
+      const publicKey = await freighterApi.connect();
+      return publicKey;
+    }
+  } catch (error) {
+    console.error('Error connecting wallet:', error);
+  }
+};
+
+const signTransaction = async (transactionXDR: string) => {
+  const signedXDR = await freighterApi.signTransaction(transactionXDR, {
+    network: 'testnet'
+  });
+  return signedXDR;
+};
+```
+
+## Referencias
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [React Hooks](https://react.dev/reference/react)
+- [Scaffold Stellar](https://github.com/AhaLabs/scaffold-stellar)

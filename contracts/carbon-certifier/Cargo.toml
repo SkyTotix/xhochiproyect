@@ -1,0 +1,19 @@
+[package]
+name = "carbon-certifier"
+description = "Smart contract for carbon credit certification based on CONADESUCA methodology"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+

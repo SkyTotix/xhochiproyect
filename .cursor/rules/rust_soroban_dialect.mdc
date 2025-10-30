@@ -1,0 +1,115 @@
+---
+alwaysApply: true
+---
+# Convenciones de Lógica de Contrato Rust/Soroban
+
+## 1. Exclusión de Librería Estándar
+
+Todos los archivos de contrato (`lib.rs`) DEBEN comenzar con la directiva `#![no_std]` para excluir la biblioteca estándar de Rust, ya que no es compatible con el entorno de blockchain.
+
+```rust
+#![no_std]
+
+use soroban_sdk::contractimpl;
+
+pub struct Contract;
+
+#[contractimpl]
+impl Contract {
+    // Implementación del contrato
+}
+```
+
+## 2. Tipos de Datos Soroban
+
+Usa ÚNICAMENTE los tipos de datos proporcionados por `soroban_sdk`:
+
+- ✅ `soroban_sdk::Address` - en lugar de String o &str para direcciones
+- ✅ `soroban_sdk::BytesN<N>` - para identificadores únicos
+- ✅ `u128`, `i128` - para cantidades y montos
+- ✅ `soroban_sdk::Env` - para interacción con el entorno
+
+### ❌ Incorrecto:
+
+```rust
+use std::collections::HashMap;  // No disponible en no_std
+let balance: String = "100";     // No usar String para montos
+```
+
+### ✅ Correcto:
+
+```rust
+use soroban_sdk::{Address, i128};
+let balance: i128 = 100;
+```
+
+## 3. Macros Esenciales
+
+Usa siempre `#[contract]` y `#[contractimpl]` para estructurar el código y definir la interfaz pública del contrato.
+
+```rust
+use soroban_sdk::contractimpl;
+
+pub struct Contract;
+
+#[contractimpl]
+impl Contract {
+    pub fn mint_certificate(
+        env: Env,
+        certificate_id: BytesN<32>,
+        data: VerificationRecord
+    ) -> Result<(), Error> {
+        // Implementación
+    }
+}
+```
+
+## 4. Flujo de Verificación (Oráculo)
+
+La función principal de acuñación (`mint_certificate` o similar) debe incluir `require_auth` o lógica de autorización para asegurar que SOLO la dirección del verificador (ej. ULPCA/Ingenio) pueda invocarla.
+
+```rust
+pub fn mint_certificate(
+    env: Env,
+    certificate_id: BytesN<32>,
+    data: VerificationRecord
+) -> Result<(), Error> {
+    // ✅ Requerir autenticación del verificador
+    require_auth(&env, &data.verifier_address);
+    
+    // Lógica de acuñación
+    let key = DataKey::Certificate(certificate_id);
+    env.storage().persistent().set(&key, &data);
+    
+    Ok(())
+}
+```
+
+## 5. Manejo de Errores
+
+Utiliza el tipo `Result<T, E>` y la macro `#[contracterror]` para definir errores claros, garantizando que todas las modificaciones de estado se reviertan automáticamente si la función devuelve `Err(Error)`.
+
+```rust
+use soroban_sdk::contracterror;
+
+#[contracterror]
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Error {
+    InvalidAmount = 1,
+    NotAuthorized = 2,
+    AlreadyExists = 3,
+}
+
+pub fn function(env: Env) -> Result<i128, Error> {
+    if condition {
+        return Err(Error::InvalidAmount);
+    }
+    Ok(result)
+}
+```
+
+## Referencias
+
+- [Soroban SDK](https://docs.rs/soroban-sdk)
+- [Rust no_std](https://doc.rust-lang.org/book/ch19-01-unsafe-rust.html)
+- [Contract Authorization](https://developers.stellar.org/docs/build/smart-contracts)
