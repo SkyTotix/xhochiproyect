@@ -1,10 +1,10 @@
-# Scaffold Stellar Frontend
+# CARBONXO - Tokenización de Carbono en Blockchain Stellar
 
-_To get started with Scaffold Stellar, visit its repo: [github.com/AhaLabs/scaffold-stellar](https://github.com/AhaLabs/scaffold-stellar)._
+Proyecto de tokenización de créditos de carbono basados en la metodología CONADESUCA para la reducción de emisiones por caña de azúcar sin quemar en Xochitepec, Morelos.
 
-_Under active development._
-
-A modern, up-to-date toolkit for building Stellar smart contract frontends.
+**Plataforma:** Stellar Blockchain + Soroban Smart Contracts  
+**Frontend:** React + TypeScript + Vite + Scaffold Stellar  
+**Estado:** ✅ Frontend Completo Implementado
 
 - ⚡️ Vite + React + TypeScript
 - 🔗 Auto-generated contract clients
@@ -55,7 +55,7 @@ Have a look at `environments.toml` for more fined-grained control.
 npm run dev
 ```
 
-Open the server URL in your web browser. 
+Open the server URL in your web browser.
 
 4. For testnet/mainnet deployment:
 
@@ -86,26 +86,87 @@ stellar registry deploy \
 stellar registry create-alias my-contract
 ```
 
-## Scaffold Initial Project Structure
-
-When you run `stellar scaffold init`, it creates a frontend-focused project structure with example contracts:
+## 📁 Estructura del Proyecto CARBONXO
 
 ```
-my-project/                      # Your initialized project
-├── contracts/                   # Example smart contracts
-├── packages/                    # Auto-generated TypeScript clients
-├── src/                         # Frontend React application
-│   ├── components/              # React components
-│   ├── contracts/               # Contract interaction helpers
-│   ├── debug/                   # Debugging contract explorer
-│   ├── hooks/                   # Custom React hooks
-│   ├── pages/                   # App Pages
-│   ├── App.tsx                  # Main application component
-│   └── main.tsx                 # Application entry point
-├── target/                      # Build artifacts and WASM files
-├── environments.toml            # Environment configurations
-├── package.json                 # Frontend dependencies
-└── .env                         # Local environment variables
+carbon-xochi/
+├── contracts/                      # Contratos inteligentes Rust/Soroban
+│   ├── carbon-certifier/          # Contrato NFT de Certificados de Carbono
+│   └── carbon-token/               # Contrato Token Fungible CARBONXO (CXO)
+├── src/                            # Frontend React/TypeScript
+│   ├── components/                 # Componentes UI
+│   │   ├── CertificateCard.tsx    # Tarjeta de certificado NFT
+│   │   ├── CertificateList.tsx    # Lista de certificados con filtros
+│   │   ├── MintCertificate.tsx    # Formulario de acuñación
+│   │   ├── TransferTokens.tsx     # Formulario de transferencia
+│   │   └── TokenBalance.tsx       # Display de balance CXO
+│   ├── hooks/                      # Custom React Hooks
+│   │   ├── useCertificates.ts     # Fetch paginado de certificados
+│   │   ├── useVerifierRole.ts     # Verificación de admin
+│   │   ├── useCarbonBalance.ts    # Balance de tokens CXO
+│   │   └── useGlobalMetrics.ts    # Métricas globales
+│   ├── pages/                      # Páginas de la aplicación
+│   │   ├── Dashboard.tsx          # Vista principal con métricas
+│   │   ├── Certificates.tsx       # Lista completa de certificados
+│   │   ├── Mint.tsx               # Página de acuñación
+│   │   ├── Transfer.tsx           # Página de transferencias
+│   │   └── Debugger.tsx           # Debug de contratos
+│   ├── contracts/                  # Clientes TypeScript generados
+│   │   ├── carbon_certifier.ts    # Cliente CarbonCertifier
+│   │   └── carbon_token.ts        # Cliente CarbonToken
+│   └── App.tsx                     # App principal con rutas
+├── docs/                           # Documentación del proyecto
+├── environments.toml               # Configuración de entornos
+└── package.json                    # Dependencias y scripts
 ```
 
-This template provides a ready-to-use frontend application with example smart contracts and their TypeScript clients. You can use these as reference while building your own contracts and UI. The frontend is set up with Vite, React, and includes basic components for interacting with the contracts.
+## 🎯 Contratos Implementados
+
+### CarbonCertifier (NFT de Certificados)
+
+- ✅ Acuñación de certificados NFT
+- ✅ Transferencia de certificados
+- ✅ Quema de certificados
+- ✅ Listado paginado con filtros
+- ✅ Métricas globales (total certificados, CO2e)
+
+### CarbonToken (Tokens CXO Fungibles)
+
+- ✅ Mint y transferencias
+- ✅ Approve y allowance
+- ✅ Balance por usuario
+
+## ✨ Frontend Implementado
+
+### Páginas Principales
+
+1. **Dashboard** (`/`) - Vista general con métricas y balance
+2. **Certificados** (`/certificates`) - Lista completa de NFT
+3. **Acuñar** (`/mint`) - Formulario para verificadores
+4. **Transferir** (`/transfer`) - Envío de tokens CXO
+5. **Debugger** (`/debug`) - Testing de contratos
+
+### Características
+
+- ✅ Validación con Zod
+- ✅ Autorización con useVerifierRole
+- ✅ Métricas en tiempo real
+- ✅ Paginación y filtros
+- ✅ Diseño con Stellar Design System
+- ✅ Manejo de estados (loading, error, success)
+
+## 🚀 Para Empezar
+
+```bash
+# Instalar dependencias
+npm install
+
+# Iniciar desarrollo
+npm run dev
+
+# Abrir http://localhost:5173
+```
+
+## 📚 Documentación
+
+Ver carpeta `docs/` para documentación detallada de cada componente y funcionalidad.
