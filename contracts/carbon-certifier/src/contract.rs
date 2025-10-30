@@ -155,6 +155,20 @@ impl CarbonCertifier {
         Ok(())
     }
 
+    /// Obtiene la dirección del administrador del contrato
+    /// 
+    /// # Retorna
+    /// `Address` - La dirección del administrador
+    /// 
+    /// # Errores
+    /// * `ContractError::NotFound` si el contrato no ha sido inicializado
+    pub fn get_admin(env: Env) -> Result<Address, ContractError> {
+        match env.storage().instance().get(&DataKey::Admin) {
+            Some(admin) => Ok(admin),
+            None => Err(ContractError::NotFound),
+        }
+    }
+
     /// Obtiene los datos de un certificado de carbono por su ID
     /// 
     /// # Argumentos

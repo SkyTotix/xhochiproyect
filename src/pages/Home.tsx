@@ -1,6 +1,9 @@
 import React from "react";
-import { Code, Layout, Text } from "@stellar/design-system";
+import { Code, Layout, Text, Card } from "@stellar/design-system";
 import { GuessTheNumber } from "../components/GuessTheNumber";
+import { CertificateCard } from "../components/CertificateCard";
+import { CertificateList } from "../components/CertificateList";
+import { Box } from "../components/layout/Box";
 
 const Home: React.FC = () => (
   <Layout.Content>
@@ -57,6 +60,17 @@ const Home: React.FC = () => (
         &lt;GuessTheNumber /&gt;
       </Text>
       <GuessTheNumber />
+      
+      <Text as="h2" size="lg">
+        Certificados de Carbono NFT
+      </Text>
+      <Text as="p" size="md">
+        Visualiza y gestiona tus certificados de reducción de CO₂:
+      </Text>
+      
+      {/* Lista completa de certificados con filtros y paginación */}
+      <CertificateList />
+      
       <Text as="h2" size="lg">
         Interact with wallets
       </Text>

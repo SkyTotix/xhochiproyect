@@ -43,3 +43,5 @@ packages/*
 # generated contract client imports
 src/contracts/*
 !src/contracts/util.ts
+!src/contracts/carbon_certifier.ts
+!src/contracts/carbon_token.ts
